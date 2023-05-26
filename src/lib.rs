@@ -153,8 +153,7 @@ impl Game {
             .iter()
             .for_each(|&(x, y)| self.cells[x][y].cell_type = CellType::SnackBody);
         // food
-        self.generage_food().unwrap();
-
+        self.generage_food()?;
         Ok(())
     }
     pub fn run(&mut self) -> IOResult<()> {
@@ -169,7 +168,7 @@ impl Game {
             .queue(MoveTo((self.cells.len() as u16 - 6) / 2, 0))?
             .queue(PrintStyledContent("贪吃蛇".green().on_black()))?
             .flush()?;
-        // score and tip
+        //score and tip
         self.print_score()?;
         self.poll()?; //开始游戏进程
         Ok(())
@@ -207,10 +206,10 @@ impl Game {
                         _ => {}
                     }
                 }
-
                 // 处理下一帧
                 match self.collision_detection() {
                     (CellType::Wall, _) => {
+                        //在这停顿，死个明白
                         thread::sleep(Duration::from_secs(2));
                         self.writer.execute(LeaveAlternateScreen).unwrap();
                         return Err(Error::new(ErrorKind::NotFound, "撞墙"));
@@ -224,8 +223,8 @@ impl Game {
                     (CellType::Food, (x, y)) => self.eat_food(x, y)?,
                     (CellType::Empty, (x, y)) => self.go(x, y),
                 };
-                // self.go();
-                self.render_only_updated()?; //渲染更新的部分
+                //渲染更新的部分
+                self.render_only_updated()?;
                 thread::sleep(Duration::from_millis(self.speed));
             }
         }
